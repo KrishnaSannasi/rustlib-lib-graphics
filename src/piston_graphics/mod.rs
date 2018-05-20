@@ -6,6 +6,7 @@ use opengl_graphics::OpenGL;
 
 pub mod app;
 pub mod data;
+// pub mod color;
 
 use self::app::App;
 use self::data::{Ptr, AppData, WindowData};
@@ -68,8 +69,8 @@ pub fn start<T>(window: PistonWindow, mut app: T)
             },
             Event::Loop(l) => {
                 match l {
-                    Loop::Render(_r) => {
-                        data.window.draw_2d(&e, |c, g| app.render(c, g));
+                    Loop::Render(r) => {
+                        data.window.draw_2d(&e, |c, g| app.render(r, c, g));
                     },
                     Loop::Update(u) => {
                         for button in &data.app_data.button_held {

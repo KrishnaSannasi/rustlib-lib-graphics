@@ -8,7 +8,7 @@ use super::data::{Ptr, WindowData};
 pub type AppGraphics<'a> = GfxGraphics<'a, Resources, CommandBuffer>;
 
 pub trait App {
-    fn render(&self, _args: Context, _gl: &mut AppGraphics);
+    fn render(&self, _args: RenderArgs, _c: Context, _gl: &mut AppGraphics);
     fn update(&mut self, _args: &UpdateArgs);
     fn set_window_data(&mut self, _data: Ptr<WindowData>);
 

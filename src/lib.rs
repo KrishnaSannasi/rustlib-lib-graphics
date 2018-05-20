@@ -3,6 +3,7 @@ pub extern crate piston_window;
 pub extern crate graphics;
 pub extern crate image;
 pub extern crate imageproc;
+pub extern crate num;
 extern crate glutin_window;
 extern crate opengl_graphics;
 extern crate gfx_graphics;
