@@ -1,7 +1,4 @@
-use super::{unwrap, unwrap_mut};
-
-use std::sync::atomic::AtomicPtr;
-use piston_window::PistonWindow;
+use piston_window::{Window, PistonWindow};
 
 use piston::input::*;
 
@@ -9,23 +6,42 @@ pub mod app;
 pub mod data;
 
 use self::app::App;
-use self::data::Data;
+use self::data::{Ptr, AppData, WindowData};
 
-pub fn start<T>(mut window: PistonWindow, mut app: T)
+impl WindowData {
+    fn new(window: PistonWindow) -> Self {
+        Self { app_data: AppData::new(&window), window }
+    }
+}
+
+impl AppData {
+    fn new(window: &PistonWindow) -> Self {
+        let size = window.size();
+        let (screen_width, screen_height) = (size.width, size.height);
+
+        Self {
+            is_cursor_on: false,
+            is_window_focus: false,
+            screen_width, screen_height,
+            mouse_x: 0.0,
+            mouse_y: 0.0,
+            button_held: Vec::new()
+        }
+    }
+}
+
+pub fn start<T>(window: PistonWindow, mut app: T)
     where T: App {
     // let mut events = Events::new(EventSettings::new());
     let mut _found = false;
 
-    let mut data = Data::new(&window);
+    let mut data = WindowData::new(window);
 
-    app.set_data(AtomicPtr::new(&mut data));
-    app.set_window(AtomicPtr::new(&mut window));
-
-    let mut data = AtomicPtr::new(&mut data);
-    let mut window = AtomicPtr::new(&mut window);
+    app.set_window_data(Ptr::new(&mut data));
+    let mut data = Ptr::new(&mut data);
 
     loop {
-        let e = unwrap_mut(&mut window).next();
+        let e = data.window.next();
 
         if let None = e {
             break;
@@ -40,12 +56,10 @@ pub fn start<T>(mut window: PistonWindow, mut app: T)
             Event::Loop(l) => {
                 match l {
                     Loop::Render(_r) => {
-                        unwrap_mut(&mut window).draw_2d(&e, |c, g| app.render(c, g));
+                        data.window.draw_2d(&e, |c, g| app.render(c, g));
                     },
                     Loop::Update(u) => {
-                        let d = unwrap(&data);
-
-                        for button in &d.button_held {
+                        for button in &data.app_data.button_held {
                             match button {
                                 &Button::Keyboard(key) => 
                                     app.handle_key_held(key),
@@ -70,15 +84,15 @@ pub fn start<T>(mut window: PistonWindow, mut app: T)
             Event::Input(i) => {
                 match i {
                     Input::Button(b) => {
-                        let d = unwrap_mut(&mut data);
-                        let contains = d.button_held.contains(&b.button);
+                        let (x, y) = (data.app_data.mouse_x, data.app_data.mouse_y);
+                        let contains = data.app_data.button_held.contains(&b.button);
                         
                         if !contains {
                             match b.button {
                                 Button::Keyboard(key) => 
                                     app.handle_key(key),
                                 Button::Mouse(mouse_button) => 
-                                    app.handle_mouse(mouse_button, d.mouse_x, d.mouse_y),
+                                    app.handle_mouse(mouse_button, x, y),
                                 Button::Controller(controller_button) => 
                                     app.handle_controller(controller_button)
                             }
@@ -87,43 +101,36 @@ pub fn start<T>(mut window: PistonWindow, mut app: T)
                         match b.state {
                             ButtonState::Press => {
                                 if !contains {
-                                    d.button_held.push(b.button);
+                                    data.app_data.button_held.push(b.button);
                                 }
                             },
                             ButtonState::Release => {
                                 if contains {
-                                    let index = d.button_held.iter().position(|x| *x == b.button).unwrap();
-                                    d.button_held.remove(index);
+                                    let index = data.app_data.button_held.iter().position(|x| *x == b.button).unwrap();
+                                    data.app_data.button_held.remove(index);
                                 }
                             }
                         }
                     },
                     Input::Move(m) => {
-                        let d = unwrap_mut(&mut data);
                         if let Motion::MouseCursor(x, y) = m {
-                            d.mouse_x = x;
-                            d.mouse_y = y;
+                            data.app_data.mouse_x = x;
+                            data.app_data.mouse_y = y;
                         }
                     },
                     Input::Resize(w, h) => {
-                        let d = unwrap_mut(&mut data);
-
-                        d.screen_width = w;
-                        d.screen_height = h;
+                        data.app_data.screen_width = w;
+                        data.app_data.screen_height = h;
                     },
                     Input::Text(_t) => {
 
                     },
                     Input::Cursor(c) => {
-                        let d = unwrap_mut(&mut data);
-
-                        d.is_cursor_on = c;
+                        data.app_data.is_cursor_on = c;
                         app.handle_cursor(c);
                     },
                     Input::Focus(f) => {
-                        let d = unwrap_mut(&mut data);
-
-                        d.is_window_focus = f;
+                        data.app_data.is_window_focus = f;
                         app.handle_focus(f);
                     },
                     Input::Close(c) => {

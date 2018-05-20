@@ -1,19 +1,16 @@
-use std::sync::atomic::{AtomicPtr};
-
 use piston::input::*;
-use piston_window::{Context, PistonWindow};
+use piston_window::{Context};
 use gfx_graphics::GfxGraphics;
 use gfx_device_gl::{Resources, CommandBuffer};
 
-use super::data::Data;
+use super::data::{Ptr, WindowData};
 
 pub type AppGraphics<'a> = GfxGraphics<'a, Resources, CommandBuffer>;
 
 pub trait App {
     fn render(&self, _args: Context, _gl: &mut AppGraphics);
     fn update(&mut self, _args: &UpdateArgs);
-    fn set_data(&mut self, _data: AtomicPtr<Data>);
-    fn set_window(&mut self, window: AtomicPtr<PistonWindow>);
+    fn set_window_data(&mut self, _data: Ptr<WindowData>);
 
     // called after rendering
     fn post_render(&self, _args: &AfterRenderArgs) {}
