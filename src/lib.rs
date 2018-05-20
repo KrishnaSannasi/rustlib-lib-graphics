@@ -1,17 +1,14 @@
-extern crate piston;
-extern crate piston_window;
+pub extern crate piston;
+pub extern crate piston_window;
+pub extern crate graphics;
+pub extern crate image;
+pub extern crate imageproc;
 extern crate glutin_window;
-extern crate graphics;
 extern crate opengl_graphics;
 extern crate gfx_graphics;
 extern crate gfx_device_gl;
-extern crate image;
-extern crate imageproc;
 
 use std::sync::atomic::{AtomicPtr, Ordering};
-
-pub use piston::input::*;
-pub use piston_window::*;
 
 #[cfg(test)]
 mod tests {
