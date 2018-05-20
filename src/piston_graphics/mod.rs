@@ -37,8 +37,8 @@ pub fn start<T>(window: PistonWindow, mut app: T)
 
     let mut data = WindowData::new(window);
 
-    app.set_window_data(Ptr::new(&mut data));
-    let mut data = Ptr::new(&mut data);
+    app.set_window_data(Ptr::from(&mut data));
+    let mut data = Ptr::from(&mut data);
 
     loop {
         let e = data.window.next();
