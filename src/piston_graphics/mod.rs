@@ -70,7 +70,7 @@ pub fn start<T>(window: PistonWindow, mut app: T)
             Event::Loop(l) => {
                 match l {
                     Loop::Render(r) => {
-                        data.window.draw_2d(&e, |c, g| app.render(r, c, g));
+                        data.window.draw_2d(&e, |c, g| app.render(&r, c, g));
                     },
                     Loop::Update(u) => {
                         for button in &data.app_data.button_held {
