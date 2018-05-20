@@ -1,6 +1,8 @@
 use piston_window::{Window, PistonWindow};
 
 use piston::input::*;
+use piston::window::WindowSettings;
+use opengl_graphics::OpenGL;
 
 pub mod app;
 pub mod data;
@@ -28,6 +30,17 @@ impl AppData {
             button_held: Vec::new()
         }
     }
+}
+
+pub fn build_window(name: &str, width: u32, height: u32) -> PistonWindow {
+    WindowSettings::new(
+            name,
+            [width, height]
+        )
+        .opengl(OpenGL::V4_5)
+        .exit_on_esc(true)
+        .build()
+        .unwrap()
 }
 
 pub fn start<T>(window: PistonWindow, mut app: T)
