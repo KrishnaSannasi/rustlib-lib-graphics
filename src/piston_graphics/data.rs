@@ -1,64 +1,39 @@
-use std::sync::atomic::{AtomicPtr, Ordering};
-use std::ops::{Deref, DerefMut};
+use std::sync::{Arc, Mutex};
+use std::ops::Deref;
 
 use piston::input::Button;
 use piston_window::PistonWindow;
 
-enum PtrVal<T> {
-    Null,
-    Ptr(AtomicPtr<T>)
-}
-
 pub struct Ptr<T> {
-    value: PtrVal<T>
+    value: Arc<Mutex<T>>
 }
 
-impl<T> Ptr<T> {
-    pub fn null() -> Self {
-        Self { value: PtrVal::Null }
+impl<'a, T: 'a> Ptr<T> {
+    pub fn defualt() -> Self
+    where T: Default {
+        Self::create(Arc::new(Mutex::default()))
     }
 
-    pub fn from(t: &mut T) -> Self {
-        Self { value: PtrVal::Ptr(AtomicPtr::new(t)) }
+    pub fn from(t: T) -> Self {
+        Self::create(Arc::new(Mutex::from(t)))
     }
 
-    pub fn is_null(&self) -> bool {
-        match &self.value {
-            &PtrVal::Null => true,
-            _ => false
-        }
-    }
-}
-
-impl<T> Deref for Ptr<T> {
-    type Target = T;
-
-    fn deref(&self) -> &T {
-        match &self.value {
-            &PtrVal::Ptr(ref ptr) =>
-                unsafe {
-                    match ptr.load(Ordering::Relaxed).as_ref() {
-                        Some(val) => val,
-                        None => panic!("tried to deref a null ptr (unsafe)")
-                    }
-                },
-            &PtrVal::Null => panic!("tried to deref a null ptr (safe)")
-        }
+    fn create(value: Arc<Mutex<T>>) -> Self {
+        Self { value }
     }
 }
 
-impl<T> DerefMut for Ptr<T> {
-    fn deref_mut(&mut self) -> &mut T {
-        match &self.value {
-            &PtrVal::Ptr(ref ptr) =>
-                unsafe {
-                    match ptr.load(Ordering::Relaxed).as_mut() {
-                        Some(val) => val,
-                        None => panic!("tried to deref a null ptr (unsafe)")
-                    }
-                },
-            &PtrVal::Null => panic!("tried to deref a null ptr (safe)")
-        }
+impl<T> Clone for Ptr<T> {
+    fn clone(&self) -> Self {
+        Self::create(self.value.clone())
+    }
+}
+
+impl<'a, T> Deref for Ptr<T> {
+    type Target = Mutex<T>;
+
+    fn deref(&self) -> &Self::Target {
+        &*self.value
     }
 }
 

@@ -4,6 +4,8 @@ use piston::input::*;
 use piston::window::WindowSettings;
 use opengl_graphics::OpenGL;
 
+use std::clone::Clone;
+
 pub mod app;
 pub mod data;
 // pub mod color;
@@ -44,21 +46,26 @@ pub fn build_window(name: &str, width: u32, height: u32) -> PistonWindow {
         .unwrap()
 }
 
-pub fn start<T>(window: PistonWindow, mut app: T)
-    where T: App {
+#[macro_export]
+macro_rules! deref {
+    ($data: expr) => {
+        &mut *$data.lock().unwrap()
+    };
+}
+
+pub fn start<'a, T, E>(window: PistonWindow, mut app: T)
+where T: App {
     // let mut events = Events::new(EventSettings::new());
     let mut _found = false;
 
-    let mut data = WindowData::new(window);
-
-    app.set_window_data(Ptr::from(&mut data));
-    let mut data = Ptr::from(&mut data);
+    let data = Ptr::from(WindowData::new(window));
+    app.set_window_data(data.clone());
 
     loop {
-        let e = data.window.next();
+        let e = deref!(&data).window.next();
 
         if let None = e {
-            break;
+            return;
         }
 
         let e = e.unwrap();
@@ -70,10 +77,10 @@ pub fn start<T>(window: PistonWindow, mut app: T)
             Event::Loop(l) => {
                 match l {
                     Loop::Render(r) => {
-                        data.window.draw_2d(&e, |c, g| app.render(&r, c, g));
+                        deref!(&data).window.draw_2d(&e, |c, g| app.render(&r, c, g));
                     },
                     Loop::Update(u) => {
-                        for button in &data.app_data.button_held {
+                        for button in &deref!(&data).app_data.button_held {
                             match button {
                                 &Button::Keyboard(key) => 
                                     app.handle_key_held(key),
@@ -98,8 +105,12 @@ pub fn start<T>(window: PistonWindow, mut app: T)
             Event::Input(i) => {
                 match i {
                     Input::Button(b) => {
-                        let (x, y) = (data.app_data.mouse_x, data.app_data.mouse_y);
-                        let contains = data.app_data.button_held.contains(&b.button);
+
+                        let (x, y, contains) = {
+                            let mut data = deref!(&data);
+                            (data.app_data.mouse_x, data.app_data.mouse_y, 
+                             data.app_data.button_held.contains(&b.button))
+                        };
                         
                         if !contains {
                             match b.button {
@@ -115,11 +126,12 @@ pub fn start<T>(window: PistonWindow, mut app: T)
                         match b.state {
                             ButtonState::Press => {
                                 if !contains {
-                                    data.app_data.button_held.push(b.button);
+                                    deref!(&data).app_data.button_held.push(b.button);
                                 }
                             },
                             ButtonState::Release => {
                                 if contains {
+                                    let mut data = deref!(&data);
                                     let index = data.app_data.button_held.iter().position(|x| *x == b.button).unwrap();
                                     data.app_data.button_held.remove(index);
                                 }
@@ -128,11 +140,13 @@ pub fn start<T>(window: PistonWindow, mut app: T)
                     },
                     Input::Move(m) => {
                         if let Motion::MouseCursor(x, y) = m {
+                            let mut data = deref!(&data);
                             data.app_data.mouse_x = x;
                             data.app_data.mouse_y = y;
                         }
                     },
                     Input::Resize(w, h) => {
+                        let mut data = deref!(&data);
                         data.app_data.screen_width = w;
                         data.app_data.screen_height = h;
                     },
@@ -140,11 +154,11 @@ pub fn start<T>(window: PistonWindow, mut app: T)
 
                     },
                     Input::Cursor(c) => {
-                        data.app_data.is_cursor_on = c;
+                        deref!(&data).app_data.is_cursor_on = c;
                         app.handle_cursor(c);
                     },
                     Input::Focus(f) => {
-                        data.app_data.is_window_focus = f;
+                        deref!(&data).app_data.is_window_focus = f;
                         app.handle_focus(f);
                     },
                     Input::Close(c) => {
