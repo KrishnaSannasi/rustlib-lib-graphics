@@ -44,7 +44,7 @@ pub fn build_window(name: &str, width: u32, height: u32) -> PistonWindow {
         .unwrap()
 }
 
-pub fn start<'a, T>(window: PistonWindow, mut app: T, draw_type: DrawType) -> Option<()>
+pub fn start<'a, T>(window: PistonWindow, mut app: T, draw_type: DrawType)
 where T: App {
     // let mut events = Events::new(EventSettings::new());
     let mut _found = false;
@@ -55,7 +55,7 @@ where T: App {
         let e = data.window.next();
 
         if let None = e {
-            return Some(());
+            return;
         }
 
         let e = e.unwrap();
