@@ -4,14 +4,12 @@ use piston::input::*;
 use piston::window::WindowSettings;
 use opengl_graphics::OpenGL;
 
-use std::clone::Clone;
-
 pub mod app;
 pub mod data;
 // pub mod color;
 
-use self::app::App;
-use self::data::{Ptr, AppData, WindowData};
+use self::app::{App, DrawType};
+use self::data::{AppData, WindowData};
 
 impl WindowData {
     fn new(window: PistonWindow) -> Self {
@@ -46,26 +44,18 @@ pub fn build_window(name: &str, width: u32, height: u32) -> PistonWindow {
         .unwrap()
 }
 
-#[macro_export]
-macro_rules! deref {
-    ($data: expr) => {
-        &mut *$data.lock().unwrap()
-    };
-}
-
-pub fn start<'a, T, E>(window: PistonWindow, mut app: T)
+pub fn start<'a, T>(window: PistonWindow, mut app: T, draw_type: DrawType) -> Option<()>
 where T: App {
     // let mut events = Events::new(EventSettings::new());
     let mut _found = false;
 
-    let data = Ptr::from(WindowData::new(window));
-    app.set_window_data(data.clone());
-
+    let mut data = WindowData::new(window);
+    
     loop {
-        let e = deref!(&data).window.next();
+        let e = data.window.next();
 
         if let None = e {
-            return;
+            return Some(());
         }
 
         let e = e.unwrap();
@@ -77,61 +67,59 @@ where T: App {
             Event::Loop(l) => {
                 match l {
                     Loop::Render(r) => {
-                        deref!(&data).window.draw_2d(&e, |c, g| app.render(&r, c, g));
+                        app.pre_render(&r, &data);
+                        match draw_type {
+                            DrawType::Dim2 => data.window.draw_2d(&e, |c, g| app.render_2d(&r, c, g)),
+                            DrawType::Dim3 => data.window.draw_3d(&e, |w| app.render_3d(&r, w)),
+                        };
                     },
                     Loop::Update(u) => {
-                        for button in &deref!(&data).app_data.button_held {
+                        for button in &data.app_data.button_held {
                             match button {
                                 &Button::Keyboard(key) => 
-                                    app.handle_key_held(key),
+                                    app.handle_key_held(key, &data),
                                 &Button::Mouse(mouse_button) => 
-                                    app.handle_mouse_held(mouse_button),
+                                    app.handle_mouse_held(mouse_button, &data),
                                 &Button::Controller(controller_button) => 
-                                    app.handle_controller_held(controller_button)
+                                    app.handle_controller_held(controller_button, &data)
                             }
                         }
 
-                        app.update(&u);
+                        app.update(&u, &data);
                     },
                     Loop::AfterRender(ar) => {
-                        app.post_render(&ar);
+                        app.post_render(&ar, &data);
                     },
                     Loop::Idle(i) => {
                         // println!("idle time {:?}ms", _a.dt * 1000.0);
-                        app.idle(&i);
+                        app.idle(&i, &data);
                     }
                 }
             }
             Event::Input(i) => {
                 match i {
                     Input::Button(b) => {
-
-                        let (x, y, contains) = {
-                            let mut data = deref!(&data);
-                            (data.app_data.mouse_x, data.app_data.mouse_y, 
-                             data.app_data.button_held.contains(&b.button))
-                        };
+                        let contains = data.app_data.button_held.contains(&b.button);
                         
                         if !contains {
                             match b.button {
                                 Button::Keyboard(key) => 
-                                    app.handle_key(key),
+                                    app.handle_key(key, &data),
                                 Button::Mouse(mouse_button) => 
-                                    app.handle_mouse(mouse_button, x, y),
+                                    app.handle_mouse(mouse_button, &data),
                                 Button::Controller(controller_button) => 
-                                    app.handle_controller(controller_button)
+                                    app.handle_controller(controller_button, &data)
                             }
                         }
 
                         match b.state {
                             ButtonState::Press => {
                                 if !contains {
-                                    deref!(&data).app_data.button_held.push(b.button);
+                                    data.app_data.button_held.push(b.button);
                                 }
                             },
                             ButtonState::Release => {
                                 if contains {
-                                    let mut data = deref!(&data);
                                     let index = data.app_data.button_held.iter().position(|x| *x == b.button).unwrap();
                                     data.app_data.button_held.remove(index);
                                 }
@@ -140,29 +128,25 @@ where T: App {
                     },
                     Input::Move(m) => {
                         if let Motion::MouseCursor(x, y) = m {
-                            let mut data = deref!(&data);
                             data.app_data.mouse_x = x;
                             data.app_data.mouse_y = y;
                         }
                     },
                     Input::Resize(w, h) => {
-                        let mut data = deref!(&data);
                         data.app_data.screen_width = w;
                         data.app_data.screen_height = h;
                     },
-                    Input::Text(_t) => {
-
-                    },
+                    Input::Text(_t) => { },
                     Input::Cursor(c) => {
-                        deref!(&data).app_data.is_cursor_on = c;
-                        app.handle_cursor(c);
+                        data.app_data.is_cursor_on = c;
+                        app.handle_cursor(c, &data);
                     },
                     Input::Focus(f) => {
-                        deref!(&data).app_data.is_window_focus = f;
-                        app.handle_focus(f);
+                        data.app_data.is_window_focus = f;
+                        app.handle_focus(f, &data);
                     },
                     Input::Close(c) => {
-                        app.on_close(&c);
+                        app.on_close(&c, &data);
                     }
                 }
             }

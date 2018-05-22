@@ -1,41 +1,5 @@
-use std::sync::{Arc, Mutex};
-use std::ops::Deref;
-
 use piston::input::Button;
 use piston_window::PistonWindow;
-
-pub struct Ptr<T> {
-    value: Arc<Mutex<T>>
-}
-
-impl<'a, T: 'a> Ptr<T> {
-    pub fn defualt() -> Self
-    where T: Default {
-        Self::create(Arc::new(Mutex::default()))
-    }
-
-    pub fn from(t: T) -> Self {
-        Self::create(Arc::new(Mutex::from(t)))
-    }
-
-    fn create(value: Arc<Mutex<T>>) -> Self {
-        Self { value }
-    }
-}
-
-impl<T> Clone for Ptr<T> {
-    fn clone(&self) -> Self {
-        Self::create(self.value.clone())
-    }
-}
-
-impl<'a, T> Deref for Ptr<T> {
-    type Target = Mutex<T>;
-
-    fn deref(&self) -> &Self::Target {
-        &*self.value
-    }
-}
 
 pub struct WindowData {
     pub app_data: AppData,
