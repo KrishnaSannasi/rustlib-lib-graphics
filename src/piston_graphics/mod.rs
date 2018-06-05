@@ -28,15 +28,13 @@ impl Data {
     }
 }
 
-pub fn build_window(name: &str, width: u32, height: u32) -> PistonWindow {
+pub fn create_window(name: &str, width: u32, height: u32) -> PistonWindow {
     WindowSettings::new(
             name,
             [width, height]
         )
         .opengl(OpenGL::V4_5)
         .exit_on_esc(true)
-        .build()
-        .unwrap()
 }
 
 pub fn start<'a, T>(window: PistonWindow, mut app: T, draw_type: DrawType)
