@@ -1,6 +1,6 @@
 [package]
 name = "lib-graphics"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Ozaren <krishna.sd.2012@gmail.com>"]
 
 [dependencies]
