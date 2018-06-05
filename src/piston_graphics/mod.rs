@@ -28,7 +28,7 @@ impl Data {
     }
 }
 
-pub fn create_window(name: &str, width: u32, height: u32) -> PistonWindow {
+pub fn create_window(name: &str, width: u32, height: u32) -> WindowSettings {
     WindowSettings::new(
             name,
             [width, height]
@@ -81,7 +81,6 @@ where T: App {
                         app.post_render(&ar, &data);
                     },
                     Loop::Idle(i) => {
-                        // println!("idle time {:?}ms", _a.dt * 1000.0);
                         app.idle(&i, &data);
                     }
                 }
