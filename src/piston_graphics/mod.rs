@@ -9,26 +9,21 @@ pub mod data;
 // pub mod color;
 
 use self::app::{App, DrawType};
-use self::data::{AppData, WindowData};
+use self::data::Data;
 
-impl WindowData {
+impl Data {
     fn new(window: PistonWindow) -> Self {
-        Self { app_data: AppData::new(&window), window }
-    }
-}
-
-impl AppData {
-    fn new(window: &PistonWindow) -> Self {
         let size = window.size();
         let (screen_width, screen_height) = (size.width, size.height);
 
-        Self {
+        Self { 
             is_cursor_on: false,
             is_window_focus: false,
             screen_width, screen_height,
             mouse_x: 0.0,
             mouse_y: 0.0,
-            button_held: Vec::new()
+            button_held: Vec::new(),
+            window
         }
     }
 }
@@ -49,7 +44,7 @@ where T: App {
     // let mut events = Events::new(EventSettings::new());
     let mut _found = false;
 
-    let mut data = WindowData::new(window);
+    let mut data = Data::new(window);
     
     loop {
         let e = data.window.next();
@@ -74,14 +69,11 @@ where T: App {
                         };
                     },
                     Loop::Update(u) => {
-                        for button in &data.app_data.button_held {
+                        for button in &data.button_held {
                             match button {
-                                &Button::Keyboard(key) => 
-                                    app.handle_key_held(key, &data),
-                                &Button::Mouse(mouse_button) => 
-                                    app.handle_mouse_held(mouse_button, &data),
-                                &Button::Controller(controller_button) => 
-                                    app.handle_controller_held(controller_button, &data)
+                                &Button::Keyboard(key) => app.handle_key_held(key, &data),
+                                &Button::Mouse(mouse_button) => app.handle_mouse_held(mouse_button, &data),
+                                &Button::Controller(controller_button) => app.handle_controller_held(controller_button, &data)
                             }
                         }
 
@@ -99,7 +91,7 @@ where T: App {
             Event::Input(i) => {
                 match i {
                     Input::Button(b) => {
-                        let contains = data.app_data.button_held.contains(&b.button);
+                        let contains = data.button_held.contains(&b.button);
                         
                         if !contains {
                             match b.button {
@@ -115,34 +107,34 @@ where T: App {
                         match b.state {
                             ButtonState::Press => {
                                 if !contains {
-                                    data.app_data.button_held.push(b.button);
+                                    data.button_held.push(b.button);
                                 }
                             },
                             ButtonState::Release => {
                                 if contains {
-                                    let index = data.app_data.button_held.iter().position(|x| *x == b.button).unwrap();
-                                    data.app_data.button_held.remove(index);
+                                    let index = data.button_held.iter().position(|x| *x == b.button).unwrap();
+                                    data.button_held.remove(index);
                                 }
                             }
                         }
                     },
                     Input::Move(m) => {
                         if let Motion::MouseCursor(x, y) = m {
-                            data.app_data.mouse_x = x;
-                            data.app_data.mouse_y = y;
+                            data.mouse_x = x;
+                            data.mouse_y = y;
                         }
                     },
                     Input::Resize(w, h) => {
-                        data.app_data.screen_width = w;
-                        data.app_data.screen_height = h;
+                        data.screen_width = w;
+                        data.screen_height = h;
                     },
                     Input::Text(_t) => { },
                     Input::Cursor(c) => {
-                        data.app_data.is_cursor_on = c;
+                        data.is_cursor_on = c;
                         app.handle_cursor(c, &data);
                     },
                     Input::Focus(f) => {
-                        data.app_data.is_window_focus = f;
+                        data.is_window_focus = f;
                         app.handle_focus(f, &data);
                     },
                     Input::Close(c) => {

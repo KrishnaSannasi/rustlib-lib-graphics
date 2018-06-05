@@ -1,12 +1,8 @@
 use piston::input::Button;
 use piston_window::PistonWindow;
 
-pub struct WindowData {
-    pub app_data: AppData,
-    pub window: PistonWindow
-}
-
-pub struct AppData {
+pub struct Data {
+    pub window: PistonWindow,
     pub is_cursor_on: bool,
     pub is_window_focus: bool,
     pub screen_width: u32,
