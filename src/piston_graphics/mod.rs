@@ -61,28 +61,28 @@ where T: App {
             Event::Loop(l) => {
                 match l {
                     Loop::Render(r) => {
-                        app.pre_render(&r, &data);
+                        app.pre_render(&r, &mut data);
                         match draw_type {
                             DrawType::Dim2 => data.window.draw_2d(&e, |c, g| app.render_2d(&r, c, g)),
                             DrawType::Dim3 => data.window.draw_3d(&e, |w| app.render_3d(&r, w)),
                         };
                     },
                     Loop::Update(u) => {
-                        for button in &data.button_held {
+                        for button in &mut data.button_held {
                             match button {
-                                &Button::Keyboard(key) => app.handle_key_held(key, &data),
-                                &Button::Mouse(mouse_button) => app.handle_mouse_held(mouse_button, &data),
-                                &Button::Controller(controller_button) => app.handle_controller_held(controller_button, &data)
+                                &Button::Keyboard(key) => app.handle_key_held(key, &mut data),
+                                &Button::Mouse(mouse_button) => app.handle_mouse_held(mouse_button, &mut data),
+                                &Button::Controller(controller_button) => app.handle_controller_held(controller_button, &mut data)
                             }
                         }
 
-                        app.update(&u, &data);
+                        app.update(&u, &mut data);
                     },
                     Loop::AfterRender(ar) => {
-                        app.post_render(&ar, &data);
+                        app.post_render(&ar, &mut data);
                     },
                     Loop::Idle(i) => {
-                        app.idle(&i, &data);
+                        app.idle(&i, &mut data);
                     }
                 }
             }
@@ -94,11 +94,11 @@ where T: App {
                         if !contains {
                             match b.button {
                                 Button::Keyboard(key) => 
-                                    app.handle_key(key, &data),
+                                    app.handle_key(key, &mut data),
                                 Button::Mouse(mouse_button) => 
-                                    app.handle_mouse(mouse_button, &data),
+                                    app.handle_mouse(mouse_button, &mut data),
                                 Button::Controller(controller_button) => 
-                                    app.handle_controller(controller_button, &data)
+                                    app.handle_controller(controller_button, &mut data)
                             }
                         }
 
@@ -121,22 +121,24 @@ where T: App {
                             data.mouse_x = x;
                             data.mouse_y = y;
                         }
+                        app.handle_mouse_moved(&m, &mut data);
                     },
                     Input::Resize(w, h) => {
                         data.screen_width = w;
                         data.screen_height = h;
+                        app.handle_resize(w, h, &mut data);
                     },
                     Input::Text(_t) => { },
                     Input::Cursor(c) => {
                         data.is_cursor_on = c;
-                        app.handle_cursor(c, &data);
+                        app.handle_cursor(c, &mut data);
                     },
                     Input::Focus(f) => {
                         data.is_window_focus = f;
-                        app.handle_focus(f, &data);
+                        app.handle_focus(f, &mut data);
                     },
                     Input::Close(c) => {
-                        app.on_close(&c, &data);
+                        app.on_close(&c, &mut data);
                     }
                 }
             }

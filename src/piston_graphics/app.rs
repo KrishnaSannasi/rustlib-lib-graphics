@@ -27,48 +27,48 @@ pub trait App {
     fn render_3d(&self, args: &RenderArgs, window: &mut PistonWindow) {}
 
     //. should be used to do calculations and more
-    fn update(&mut self, args: &UpdateArgs, data: &Data) {}
+    fn update(&mut self, args: &UpdateArgs, data: &mut Data) {}
     
     /// called right before render should be used to do setup before rendering
     /// this is to be used to do renderargs specific adjustments
-    fn pre_render(&mut self, args: &RenderArgs, data: &Data) {}
+    fn pre_render(&mut self, args: &RenderArgs, data: &mut Data) {}
 
     /// called after rendering
-    fn post_render(&mut self, args: &AfterRenderArgs, data: &Data) {}
+    fn post_render(&mut self, args: &AfterRenderArgs, data: &mut Data) {}
 
     /// handles idle time
-    fn idle(&mut self, args: &IdleArgs, data: &Data) {}
+    fn idle(&mut self, args: &IdleArgs, data: &mut Data) {}
 
     /// handles a keyboard key being presesd down (only for the first tick, not while it is held down)
-    fn handle_key(&mut self, key: Key, data: &Data) {}
+    fn handle_key(&mut self, key: Key, data: &mut Data) {}
     
     /// handles a mouse button being presesd down (only for the first tick, not while it is held down)
-    fn handle_mouse(&mut self, mouse_button: MouseButton, data: &Data) {}
+    fn handle_mouse(&mut self, mouse_button: MouseButton, data: &mut Data) {}
 
     /// handles a controller button being presesd down (only for the first tick, not while it is held down)
-    fn handle_controller(&mut self, controller_button: ControllerButton, data: &Data) {}
+    fn handle_controller(&mut self, controller_button: ControllerButton, data: &mut Data) {}
     
     /// handles a keyboard keys being held down
-    fn handle_key_held(&mut self, key: Key, data: &Data) {}
+    fn handle_key_held(&mut self, key: Key, data: &mut Data) {}
     
     /// handles a mouse button being held down
-    fn handle_mouse_held(&mut self, mouse_button: MouseButton, data: &Data) {}
+    fn handle_mouse_held(&mut self, mouse_button: MouseButton, data: &mut Data) {}
 
     /// handle controller button being held down
-    fn handle_controller_held(&mut self, controller_button: ControllerButton, data: &Data) {}
+    fn handle_controller_held(&mut self, controller_button: ControllerButton, data: &mut Data) {}
 
     /// handle mouse movement
-    fn mouse_moved(&mut self, args: &Motion, data: &Data) {}
+    fn handle_mouse_moved(&mut self, args: &Motion, data: &mut Data) {}
     
     /// handle cursor going on and off screen
-    fn handle_cursor(&mut self, cursor: bool, data: &Data) {}
+    fn handle_cursor(&mut self, cursor: bool, data: &mut Data) {}
 
     /// handle window focus going on and off
-    fn handle_focus(&mut self, focus: bool, data: &Data) {}
+    fn handle_focus(&mut self, focus: bool, data: &mut Data) {}
 
     /// handle window resizing
-    fn handle_resize(&mut self, width: u32, height: u32, data: &Data) {}
+    fn handle_resize(&mut self, width: u32, height: u32, data: &mut Data) {}
 
     /// handles closing the window
-    fn on_close(&mut self, args: &CloseArgs, data: &Data) {}
+    fn on_close(&mut self, args: &CloseArgs, data: &mut Data) {}
 }
