@@ -4,10 +4,10 @@ pub extern crate graphics;
 pub extern crate image;
 pub extern crate imageproc;
 pub extern crate num;
-extern crate glutin_window;
-extern crate opengl_graphics;
-extern crate gfx_graphics;
-extern crate gfx_device_gl;
+pub extern crate glutin_window;
+pub extern crate opengl_graphics;
+pub extern crate gfx_graphics;
+pub extern crate gfx_device_gl;
 
 #[cfg(test)]
 mod tests {
