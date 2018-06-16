@@ -37,11 +37,12 @@ pub fn create_window(name: &str, width: u32, height: u32) -> WindowSettings {
         .exit_on_esc(true)
 }
 
-pub fn start<'a, T>(window: PistonWindow, mut app: T, draw_type: DrawType)
+pub fn start<'a, T>(mut window: PistonWindow, mut app: T, draw_type: DrawType)
 where T: App {
     // let mut events = Events::new(EventSettings::new());
     let mut _found = false;
 
+    app.init(&mut window);
     let mut data = Data::new(window);
     
     loop {

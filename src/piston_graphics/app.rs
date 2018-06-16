@@ -17,6 +17,9 @@ pub enum DrawType {
 
 #[allow(unused_variables)]
 pub trait App {
+    /// initialize based on window
+    fn init(&self, &mut PistonWindow) {}
+
     /// renders things to the screen for 2d graphics
     fn render_2d(&self, args: &RenderArgs, c: Context, gl: &mut AppGraphics) {}
 
