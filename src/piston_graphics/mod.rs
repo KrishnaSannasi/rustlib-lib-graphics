@@ -68,11 +68,12 @@ where T: App {
                         };
                     },
                     Loop::Update(u) => {
-                        for button in &mut data.button_held {
+                        let mut button_held = data.button_held.clone();
+                        for button in button_held.drain(..) {
                             match button {
-                                &Button::Keyboard(key) => app.handle_key_held(key, &mut data),
-                                &Button::Mouse(mouse_button) => app.handle_mouse_held(mouse_button, &mut data),
-                                &Button::Controller(controller_button) => app.handle_controller_held(controller_button, &mut data)
+                                Button::Keyboard(key) => app.handle_key_held(key, &mut data),
+                                Button::Mouse(mouse_button) => app.handle_mouse_held(mouse_button, &mut data),
+                                Button::Controller(controller_button) => app.handle_controller_held(controller_button, &mut data)
                             }
                         }
 
