@@ -1,4 +1,4 @@
-use piston::input::Button;
+use piston::input::ButtonArgs;
 use piston_window::PistonWindow;
 
 pub struct Data {
@@ -9,5 +9,5 @@ pub struct Data {
     pub screen_height: u32,
     pub mouse_x: f64,
     pub mouse_y: f64,
-    pub button_held: Vec<Button>
+    pub button_held: Vec<ButtonArgs>
 }

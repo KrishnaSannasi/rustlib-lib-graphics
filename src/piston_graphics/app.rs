@@ -40,22 +40,28 @@ pub trait App {
     fn idle(&mut self, args: &IdleArgs, data: &mut Data) {}
 
     /// handles a keyboard key being presesd down (only for the first tick, not while it is held down)
-    fn handle_key(&mut self, key: Key, data: &mut Data) {}
+    fn handle_key(&mut self, button: &ButtonArgs, key: Key, data: &mut Data) {}
     
     /// handles a mouse button being presesd down (only for the first tick, not while it is held down)
-    fn handle_mouse(&mut self, mouse_button: MouseButton, data: &mut Data) {}
+    fn handle_mouse(&mut self, button: &ButtonArgs, mouse_button: MouseButton, data: &mut Data) {}
 
     /// handles a controller button being presesd down (only for the first tick, not while it is held down)
-    fn handle_controller(&mut self, controller_button: ControllerButton, data: &mut Data) {}
+    fn handle_controller(&mut self, button: &ButtonArgs, controller_button: ControllerButton, data: &mut Data) {}
     
+    /// handles a controller dpad button being pressed (only for the first tick, not while it is held down)
+    fn handle_controller_hat(&mut self, button: &ButtonArgs, controller_hat: ControllerHat, &mut Data) {}
+
     /// handles a keyboard keys being held down
-    fn handle_key_held(&mut self, key: Key, data: &mut Data) {}
+    fn handle_key_held(&mut self, button: &ButtonArgs, key: Key, data: &mut Data) {}
     
     /// handles a mouse button being held down
-    fn handle_mouse_held(&mut self, mouse_button: MouseButton, data: &mut Data) {}
+    fn handle_mouse_held(&mut self, button: &ButtonArgs, mouse_button: MouseButton, data: &mut Data) {}
 
     /// handle controller button being held down
-    fn handle_controller_held(&mut self, controller_button: ControllerButton, data: &mut Data) {}
+    fn handle_controller_held(&mut self, button: &ButtonArgs, controller_button: ControllerButton, data: &mut Data) {}
+    
+    /// handles a controller dpad button being held down
+    fn handle_controller_hat_held(&mut self, button: &ButtonArgs, controller_hat: ControllerHat, &mut Data) {}
 
     /// handle mouse movement
     fn handle_mouse_moved(&mut self, args: &Motion, data: &mut Data) {}

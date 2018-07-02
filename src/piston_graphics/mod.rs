@@ -70,10 +70,15 @@ where T: App {
                     Loop::Update(u) => {
                         let mut button_held = data.button_held.clone();
                         for button in button_held.drain(..) {
-                            match button {
-                                Button::Keyboard(key) => app.handle_key_held(key, &mut data),
-                                Button::Mouse(mouse_button) => app.handle_mouse_held(mouse_button, &mut data),
-                                Button::Controller(controller_button) => app.handle_controller_held(controller_button, &mut data)
+                            match button.button {
+                                Button::Keyboard(key) => 
+                                    app.handle_key_held(&button, key, &mut data),
+                                Button::Mouse(mouse) => 
+                                    app.handle_mouse_held(&button, mouse, &mut data),
+                                Button::Controller(controller) => 
+                                    app.handle_controller_held(&button, controller, &mut data),
+                                Button::Hat(hat) => 
+                                    app.handle_controller_hat_held(&button, hat, &mut data),
                             }
                         }
 
@@ -89,29 +94,31 @@ where T: App {
             }
             Event::Input(i) => {
                 match i {
-                    Input::Button(b) => {
-                        let contains = data.button_held.contains(&b.button);
+                    Input::Button(button) => {
+                        let contains = data.button_held.contains(&button);
                         
                         if !contains {
-                            match b.button {
+                            match button.button {
                                 Button::Keyboard(key) => 
-                                    app.handle_key(key, &mut data),
-                                Button::Mouse(mouse_button) => 
-                                    app.handle_mouse(mouse_button, &mut data),
-                                Button::Controller(controller_button) => 
-                                    app.handle_controller(controller_button, &mut data)
+                                    app.handle_key(&button, key, &mut data),
+                                Button::Mouse(mouse) => 
+                                    app.handle_mouse(&button, mouse, &mut data),
+                                Button::Controller(controller) => 
+                                    app.handle_controller(&button, controller, &mut data),
+                                Button::Hat(hat) => 
+                                    app.handle_controller_hat(&button, hat, &mut data),
                             }
                         }
 
-                        match b.state {
+                        match button.state {
                             ButtonState::Press => {
                                 if !contains {
-                                    data.button_held.push(b.button);
+                                    data.button_held.push(button);
                                 }
                             },
                             ButtonState::Release => {
                                 if contains {
-                                    let index = data.button_held.iter().position(|x| *x == b.button).unwrap();
+                                    let index = data.button_held.iter().position(|x| *x == button).unwrap();
                                     data.button_held.remove(index);
                                 }
                             }
