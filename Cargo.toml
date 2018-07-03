@@ -1,7 +1,10 @@
 [package]
 name = "lib-graphics"
-version = "0.4.3"
+version = "0.4.4"
 authors = ["Ozaren <krishna.sd.2012@gmail.com>"]
+
+[features]
+debug = []
 
 [dependencies]
 piston = "0.37.0"

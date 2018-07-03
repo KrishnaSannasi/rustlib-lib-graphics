@@ -123,6 +123,7 @@ where T: App {
                                 if let None = index {
                                     data.button_held.push(button);
                                 } else {
+                                    #[cfg(feature = debug)]
                                     panic!("INTERNAL: button is already registered")
                                 }
                             },
@@ -130,6 +131,7 @@ where T: App {
                                 if let Some(index) = index {
                                     data.button_held.remove(index);
                                 } else {
+                                    #[cfg(feature = debug)]
                                     panic!("INTERNAL: button is not already registered")
                                 }
                             }
