@@ -114,7 +114,6 @@ where T: App {
                             ButtonState::Press => {
                                 if let None = index {
                                     data.button_held.push(button);
-                                    println!("{:?}", data.button_held);
                                 } else {
                                     panic!("button is already registered")
                                 }
