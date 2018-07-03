@@ -97,7 +97,15 @@ where T: App {
                     Input::Button(button) => {
                         let index = data.button_held.iter().position(|x| x.button == button.button);
                         
-                        if let None = index {
+                        let do_handle = if let None = index {
+                            true
+                        } else if let ButtonState::Release = button.state {
+                            true
+                        } else {
+                            false
+                        };
+
+                        if do_handle {
                             match button.button {
                                 Button::Keyboard(key) => 
                                     app.handle_key(&button, key, &mut data),
@@ -115,14 +123,14 @@ where T: App {
                                 if let None = index {
                                     data.button_held.push(button);
                                 } else {
-                                    panic!("button is already registered")
+                                    panic!("INTERNAL: button is already registered")
                                 }
                             },
                             ButtonState::Release => {
                                 if let Some(index) = index {
                                     data.button_held.remove(index);
                                 } else {
-                                    panic!("button is not already registered")
+                                    panic!("INTERNAL: button is not already registered")
                                 }
                             }
                         }
